@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Joc de Trivia</title>
+</head>
+<body>
+
+<h1>Joc de Trivia</h1>
+<div id="question"></div>
+<div id="options"></div>
+<button onclick="nextQuestion()">Următoarea întrebare</button>
+
+<script>
+  const questions = [
+    {
+      question: 'Care este capitala Franței?',
+      options: ['Berlin', 'Londra', 'Paris', 'Roma'],
+      answer: 'Paris'
+    },
+    {
+      question: 'Care este culoarea cerului pe timp de zi?',
+      options: ['Roșu', 'Albastru', 'Verde', 'Portocaliu'],
+      answer: 'Albastru'
+    },
+  ];
+
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  function displayQuestion() {
+    const questionDiv = document.getElementById('question');
+    const optionsDiv = document.getElementById('options');
+    const currentQuestion = questions[currentQuestionIndex];
+
+    questionDiv.textContent = currentQuestion.question;
+    optionsDiv.innerHTML = '';
+
+    currentQuestion.options.forEach(option => {
+      const button = document.createElement('button');
+      button.textContent = option;
+      button.onclick = () => checkAnswer(option);
+      optionsDiv.appendChild(button);
+    });
+  }
+
+  function checkAnswer(selectedOption) {
+    const currentQuestion = questions[currentQuestionIndex];
+    if (selectedOption === currentQuestion.answer) {
+      score++;
+    }
+    nextQuestion();
+  }
+
+  function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      displayQuestion();
+    } else {
+      alert(`Jocul s-a încheiat! Scorul tău este ${score}/${questions.length}`);
+    }
+  }
+
+  displayQuestion();
+
+</script>
+
+</body>
+</html>

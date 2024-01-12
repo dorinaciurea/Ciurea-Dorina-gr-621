@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aplicație pentru Notițe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    .note-form {
+      background: #fff;
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .note-list {
+      background: #fff;
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .note {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Aplicație pentru Notițe</h1>
+</header>
+
+<div class="container">
+  <div class="note-form">
+    <textarea id="note-content" placeholder="Introduceți notița dvs. aici..."></textarea><br>
+    <button onclick="saveNote()">Salvează Notița</button>
+  </div>
+
+  <div class="note-list">
+    <h2>Lista de Notițe</h2>
+    <div id="notes"></div>
+  </div>
+</div>
+
+<script>
+  function fetchNotes() {
+    fetch('/notes')
+      .then(response => response.json())
+      .then(data => {
+        const notesContainer = document.getElementById('notes');
+        notesContainer.innerHTML = '';
+        data.forEach(note => {
+          const noteDiv = document.createElement('div');
+          noteDiv.classList.add('note');
+          noteDiv.textContent = note.content;
+          notesContainer.appendChild(noteDiv);
+          noteDiv.addEventListener('click', () => editNote(note.id, note.content));
+        });
+      });
+  }
+
+  function saveNote() {
+    const content = document.getElementById('note-content').value;
+    fetch('/notes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ content })
+    })
+    .then(() => {
+      fetchNotes();
+      document.getElementById('note-content').value = '';
+    });
+  }
+
+  function editNote(id, content) {
+    const updatedContent = prompt('Editați notița:', content);
+    if (updatedContent !== null) {
+      fetch(`/notes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: updatedContent })
+      })
+      .then(fetchNotes);
+    }
+  }
+
+  fetchNotes();
+</script>
+
+</body>
+</html>

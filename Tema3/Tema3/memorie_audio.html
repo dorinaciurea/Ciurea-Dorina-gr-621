@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Joc de memorie audio</title>
+  <style>
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .highlight {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Joc de memorie audio</h1>
+<button onclick="startGame()">Start joc</button>
+<div id="buttons"></div>
+
+<script>
+  let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let oscillator;
+  let sequence = [];
+  let playerSequence = [];
+  let level = 0;
+
+  function playSound(frequency, index) {
+    oscillator = audioContext.createOscillator();
+    oscillator.connect(audioContext.destination);
+    oscillator.type = 'sine'; // Tipul sunetului (poti incerca si altele: square, triangle, sawtooth)
+    oscillator.frequency.value = frequency; 
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
+
+    const buttons = document.querySelectorAll('.sound-button');
+    buttons[index].classList.add('highlight');
+    setTimeout(() => {
+      buttons[index].classList.remove('highlight');
+    }, 500);
+  }
+
+  function playSequence() {
+    playerSequence = [];
+    let index = 0;
+    let interval = setInterval(() => {
+      if (index < sequence.length) {
+        playSound(sequence[index], index);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
+  }
+
+  function addToSequence() {
+    const randomNote = Math.floor(Math.random() * 400) + 100;
+    sequence.push(randomNote);
+    level++;
+    playSequence();
+  }
+
+  function startGame() {
+    sequence = [];
+    level = 0;
+    addToSequence();
+  }
+
+  function checkSequence() {
+    if (JSON.stringify(sequence) === JSON.stringify(playerSequence)) {
+      alert(`Corect! Treci la nivelul următor.`);
+      addToSequence();
+    } else {
+      alert(`Greșit! Ai pierdut jocul. Scorul tău este ${level}`);
+      sequence = [];
+      level = 0;
+    }
+  }
+
+  function recordUserInput(note) {
+    playerSequence.push(note);
+    if (playerSequence.length === sequence.length) {
+      checkSequence();
+    }
+  }
+
+  function createButtons() {
+    const buttonsDiv = document.getElementById('buttons');
+    buttonsDiv.innerHTML = '';
+    for (let i = 0; i < 4; i++) {
+      const button = document.createElement('button');
+      button.textContent = `Sunet ${i + 1}`;
+      button.classList.add('sound-button');
+      button.onclick = () => recordUserInput(sequence[i]);
+      buttonsDiv.appendChild(button);
+    }
+  }
+
+  startGame();
+  createButtons();
+
+</script>
+
+</body>
+</html>
